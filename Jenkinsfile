@@ -22,11 +22,9 @@ pipeline {
             steps {
                 sh '''
                     set -eu
+                    test -f index.html
                     find /deploy -mindepth 1 -delete
-                    find . -mindepth 1 -maxdepth 1 \
-                        ! -name .git \
-                        ! -name Jenkinsfile \
-                        -exec cp -a '{}' /deploy/ \;
+                    cp -a index.html /deploy/
                 '''
             }
         }
