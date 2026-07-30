@@ -1,0 +1,83 @@
+name: up-deploy-test
+
+services:
+  deploy-volume-init:
+    image: alpine:3.22
+    command:
+      - /bin/sh
+      - -c
+      - |
+        if [ ! -f /deploy/index.html ]; then
+          printf '%s\n' '<h1>Jenkinsからのファイル配置待ち</h1>' > /deploy/index.html
+        fi
+        chown -R 1000:1000 /deploy
+        chmod 0755 /deploy
+    volumes:
+      - deploy-data:/deploy
+    restart: "no"
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: jenkins/Dockerfile
+      secrets:
+        - company_ca
+    image: up-test-jenkins:2.568.1
+    hostname: jenkins
+    restart: unless-stopped
+    depends_on:
+      deploy-volume-init:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      TZ: Asia/Tokyo
+      JENKINS_JOB_NAME: github-file-deploy-pipeline
+      GITHUB_REPOSITORY_URL: https://github.com/suika822f-stack/up-deploy-test-index.html.git
+      GITHUB_BRANCH: main
+    secrets:
+      - jenkins_admin_password
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - deploy-data:/deploy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/login >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 90s
+
+  customer-web:
+    build:
+      context: .
+      dockerfile: customer-web/Dockerfile
+    image: up-test-customer-web:almalinux-9
+    hostname: customer-web
+    restart: unless-stopped
+    depends_on:
+      deploy-volume-init:
+        condition: service_completed_successfully
+    ports:
+      - "8081:80"
+    environment:
+      TZ: Asia/Tokyo
+    volumes:
+      - deploy-data:/var/www/html:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+volumes:
+  jenkins-home:
+  deploy-data:
+
+secrets:
+  company_ca:
+    file: ./jenkins/certs/company-ca.crt
+  jenkins_admin_password:
+    file: ./jenkins/secrets/admin-password.txt
+

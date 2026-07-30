@@ -1,0 +1,3 @@
+jenkins/certs/*.crt
+jenkins/secrets/*.txt
+
