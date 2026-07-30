@@ -1,3 +1,4 @@
 jenkins/certs/*.crt
 jenkins/secrets/*.txt
+registry-data/
 

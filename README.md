@@ -74,3 +74,65 @@ curl.exe --fail http://localhost:8081
 ```
 
 Jenkinsの`github-file-deploy-pipeline`が`SUCCESS`となり、ApacheからGitHub上の`index.html`が返れば試験成功である。
+
+## ローカルDockerレジストリ
+
+今後のGit管理、Dockerイメージ管理および試験は、作業者PCの次のフォルダーで行う。
+
+```text
+C:\Users\matsumoto\Desktop\CICD試験用
+```
+
+試験用レジストリは作業者PC内の `localhost:5000` で動作する。外部PCへ公開する本番用レジストリではなく、今回の試験だけに使用する。
+
+| ファイル・場所 | 役割 | Git管理 |
+| --- | --- | --- |
+| `registry-compose.yml` | ローカルレジストリのコンテナを定義する | 対象 |
+| `registry-data` | 登録したDockerイメージの実体を保存する | 対象外 |
+| `scripts/Publish-JenkinsImage.ps1` | Jenkinsイメージを作成し、ローカルレジストリへ登録する | 対象 |
+
+レジストリだけを起動する。
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\matsumoto\Desktop\CICD試験用'
+docker compose -f registry-compose.yml up -d
+curl.exe --fail http://localhost:5000/v2/
+```
+
+`{}` が返れば、レジストリの基本応答は正常である。
+
+登録済みイメージの一覧を確認する。
+
+```powershell
+curl.exe --fail http://localhost:5000/v2/_catalog
+```
+
+レジストリを停止する。`registry-data` は削除されないため、登録したイメージは次回起動時にも使用できる。
+
+```powershell
+docker compose -f registry-compose.yml down
+```
+
+### Jenkinsイメージの登録
+
+社内CA証明書を次の場所に用意してから、登録スクリプトを実行する。
+
+```text
+C:\Users\matsumoto\Desktop\CICD試験用\jenkins\certs\company-ca.crt
+```
+
+```powershell
+.\scripts\Publish-JenkinsImage.ps1
+```
+
+このスクリプトは、プラグイン入りJenkinsイメージを作成し、次の名前でローカルレジストリへ登録する。
+
+```text
+localhost:5000/up-test-jenkins:2.568.1-plugins-20260730
+```
+
+Jenkins管理者パスワードはDockerイメージへ含めない。次のローカルファイルからコンテナ起動時に渡す。
+
+```text
+C:\Users\matsumoto\Desktop\CICD試験用\jenkins\secrets\admin-password.txt
+```
