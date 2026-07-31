@@ -7,4 +7,5 @@ COPY --chown=jenkins:jenkins jenkins/plugins-cache/ /usr/share/jenkins/ref/plugi
 # 初回起動時に管理者設定とPipelineジョブを自動作成する。
 COPY --chown=jenkins:jenkins jenkins/init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
 
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+# 試験ではプラグインを固定してイメージに組み込むため、更新サイトを自動確認しない。
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.UpdateCenter.never=true"

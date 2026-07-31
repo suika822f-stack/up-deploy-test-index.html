@@ -1,5 +1,5 @@
 param(
-    [string]$ImageName = 'localhost:5000/up-test-jenkins:2.568.1-plugins-20260731'
+    [string]$ImageName = 'localhost:5000/up-test-jenkins:2.568.1-plugins-20260731-offline'
 )
 
 $ErrorActionPreference = 'Stop'

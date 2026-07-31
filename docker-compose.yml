@@ -17,7 +17,7 @@ services:
     restart: "no"
 
   jenkins:
-    image: localhost:5000/up-test-jenkins:2.568.1-plugins-20260731
+    image: localhost:5000/up-test-jenkins:2.568.1-plugins-20260731-offline
     hostname: jenkins
     restart: unless-stopped
     depends_on:

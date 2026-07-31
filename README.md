@@ -131,8 +131,10 @@ docker compose -f registry-compose.yml down
 このスクリプトは、プラグイン入りJenkinsイメージを作成し、次の名前でローカルレジストリへ登録する。
 
 ```text
-localhost:5000/up-test-jenkins:2.568.1-plugins-20260731
+localhost:5000/up-test-jenkins:2.568.1-plugins-20260731-offline
 ```
+
+この試験ではプラグインを固定してイメージへ組み込むため、Jenkins更新サイトへの自動確認を `-Dhudson.model.UpdateCenter.never=true` で無効にする。Pipelineが接続するGitHubとApacheは対象外であり、試験に必要な接続は継続する。
 
 Jenkins管理者パスワードはDockerイメージへ含めない。次のローカルファイルからコンテナ起動時に渡す。
 
