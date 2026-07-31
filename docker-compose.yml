@@ -17,12 +17,7 @@ services:
     restart: "no"
 
   jenkins:
-    build:
-      context: .
-      dockerfile: jenkins/Dockerfile
-      secrets:
-        - company_ca
-    image: up-test-jenkins:2.568.1
+    image: localhost:5000/up-test-jenkins:2.568.1-plugins-20260731
     hostname: jenkins
     restart: unless-stopped
     depends_on:
@@ -76,8 +71,6 @@ volumes:
   deploy-data:
 
 secrets:
-  company_ca:
-    file: ./jenkins/certs/company-ca.crt
   jenkins_admin_password:
     file: ./jenkins/secrets/admin-password.txt
 

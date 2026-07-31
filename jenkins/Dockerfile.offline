@@ -1,0 +1,10 @@
+FROM jenkins/jenkins:2.568.1-jdk21
+
+# Windows側で事前取得した固定バージョンのプラグインを組み込む。
+# イメージ作成中はJenkins更新サイトへ接続しない。
+COPY --chown=jenkins:jenkins jenkins/plugins-cache/ /usr/share/jenkins/ref/plugins/
+
+# 初回起動時に管理者設定とPipelineジョブを自動作成する。
+COPY --chown=jenkins:jenkins jenkins/init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
+
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"

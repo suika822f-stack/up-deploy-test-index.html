@@ -1,18 +1,15 @@
 param(
-    [string]$ImageName = 'localhost:5000/up-test-jenkins:2.568.1-plugins-20260730'
+    [string]$ImageName = 'localhost:5000/up-test-jenkins:2.568.1-plugins-20260731'
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$caPath = Join-Path $projectRoot 'jenkins\certs\company-ca.crt'
-$dockerfilePath = Join-Path $projectRoot 'jenkins\Dockerfile'
+$dockerfilePath = Join-Path $projectRoot 'jenkins\Dockerfile.offline'
+$downloadScript = Join-Path $PSScriptRoot 'Download-JenkinsPlugins.ps1'
 
-if (-not (Test-Path -LiteralPath $caPath -PathType Leaf)) {
-    throw "社内CA証明書がありません: $caPath"
-}
+& $downloadScript
 
 docker build `
-    --secret "id=company_ca,src=$caPath" `
     --file $dockerfilePath `
     --tag $ImageName `
     $projectRoot

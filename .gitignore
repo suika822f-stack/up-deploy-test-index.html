@@ -1,4 +1,5 @@
 jenkins/certs/*.crt
 jenkins/secrets/*.txt
 registry-data/
+jenkins/plugins-cache/
 
